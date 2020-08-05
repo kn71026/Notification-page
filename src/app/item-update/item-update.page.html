@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-title>Update Item</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <div class="ion-text-center">
+    <ion-item>
+      <ion-label color="primary" position="floating" >Title</ion-label>
+      <ion-input type="text"  [(ngModel)]="title" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label color="primary" position="floating" >Description</ion-label>
+      <ion-textarea type="text" [(ngModel)]="des" required></ion-textarea>
+    </ion-item>
+    <ion-button class="submit-btn" expand="block" (click)="updateItem()" type="submit" >update</ion-button>
+</div>
+</ion-content>

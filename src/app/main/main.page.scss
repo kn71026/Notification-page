@@ -1,0 +1,48 @@
+*,body{
+    font-family: "微軟正黑體";
+}
+
+
+.my_title{
+    font-size: 25px;
+    margin-left: 46%;
+    margin-right: 45%;
+    padding: 10px;
+}
+.item{
+    position: relative;
+}
+.myid{
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    color: white;
+    background: rgb(62, 161, 253);
+    font-size: 16px;
+    text-align: center;
+    padding: 5px;
+    margin-bottom: 15px;
+}
+.myitemtitle{
+    position: absolute;
+    top: 42px;
+    font-weight: bolder;
+    font-size: 16px;
+}
+
+
+
+
+.my_date{
+    position: absolute;
+    right: 100px;
+    font-size: 14px;
+    color:gray;
+}
+
+@media(max-width:1213px){
+    .my_title{
+        font-size: 25px;
+        margin-left: 35%;
+    }
+}

@@ -1,0 +1,22 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>add-notification</ion-title>
+    <ion-buttons slot="end" class="mybutton">
+      <ion-button (click)="close()" > 
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+    </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-item>
+    <ion-label color="primary" position="floating" >Title</ion-label>
+    <ion-input type="text" [(ngModel)]="body.title" required></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label color="primary" position="floating" >Description</ion-label>
+    <ion-textarea rows="6" cols="20" placeholder="Enter any text here..." [(ngModel)]="body.description" required></ion-textarea>
+  </ion-item>
+  <ion-button class="submit-btn" expand="block" (click)="addItem()" type="submit" >Create</ion-button>
+</ion-content>
