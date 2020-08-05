@@ -1,6 +1,6 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title color="primary" class="my_title">主要頁面</ion-title>
+  <ion-toolbar color="dark">
+    <ion-title color="dark" class="my_title">主要頁面</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -12,8 +12,8 @@
 <ion-list>
   <ion-item *ngFor="let item of data" class="item" >
   <ion-label (click)="nav2update(item.id)">
-    <span class="myid">
-    {{item.id}}
+    <span>
+    {{item.id}}.
     </span>
     <br/>
     <span class="myitemtitle">
@@ -21,9 +21,7 @@
     </span>
     
     <span class="myitemdes">
-      <br/>
       <br/>      
-
       description： {{item.description}}
     </span>
   </ion-label>

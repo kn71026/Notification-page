@@ -5,9 +5,10 @@
 
 .my_title{
     font-size: 25px;
-    margin-left: 46%;
+    margin-left: 46.5%;
     margin-right: 45%;
     padding: 10px;
+    color: white;
 }
 .item{
     position: relative;
@@ -25,9 +26,11 @@
 }
 .myitemtitle{
     position: absolute;
-    top: 42px;
+    left: 40px;
+    top: 5px;
     font-weight: bolder;
-    font-size: 16px;
+    font-size: 18px;
+    padding: 5px;
 }
 
 
