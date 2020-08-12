@@ -3,8 +3,8 @@ import { AlertController, NavController } from '@ionic/angular';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import {  throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { AnyTxtRecord } from 'dns';
 import { Storage } from '@ionic/storage';
+import { analyzeAndValidateNgModules } from '@angular/compiler';
 
 
 @Component({
@@ -13,12 +13,14 @@ import { Storage } from '@ionic/storage';
   styleUrls: ['./login.page.scss'],
 })
 
+
 export class LoginPage implements OnInit {
 
   email = '';
   password = '';
   token: any;
   remember = false;
+  data: any;
 
   constructor(
     private navCtrl: NavController,
@@ -32,8 +34,10 @@ export class LoginPage implements OnInit {
 
   async login(){
     try {
-      const response = await this.postFromApi();
+      let response: any;
+      response = await this.postFromApi();
       console.log({ response });
+
       this.token = response.data.token.access_token;
       await this.storage.set('Token', this.token);
       this.navCtrl.navigateForward('/main');
@@ -53,6 +57,7 @@ export class LoginPage implements OnInit {
 
       this.http.post<Response>(url, body).subscribe(
         (res) => {
+          this.data = res.body;
           console.log(res);
           resolve(res);
         },
@@ -65,7 +70,7 @@ export class LoginPage implements OnInit {
     });
 }
 
-  Signin(){
+  SignIn(){
     this.presentAlert2();
   }
 
@@ -77,18 +82,18 @@ export class LoginPage implements OnInit {
       buttons: ['OK']
     });
     await alert.present();
-    let result = await alert.onDidDismiss();
+    const result = await alert.onDidDismiss();
   }
 
   async presentAlert2() {
     const alert = await this.alertCtrl.create({
       header: 'ERROR',
-      subHeader: 'signin failed',
+      subHeader: 'signIn failed',
       message: '還沒寫QQ',
       buttons: ['OK']
     });
     await alert.present();
-    let result = await alert.onDidDismiss();
+    const result = await alert.onDidDismiss();
   }
 
   private handleError = (error: HttpErrorResponse) => {

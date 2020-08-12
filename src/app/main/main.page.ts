@@ -12,7 +12,9 @@ export interface Data {
   title: string;
   description: string;
   updated_at: number;
-  last_edited_by_user: string;
+  last_edited_by_user: {
+    name: string;
+  };
 }
 
 @Component({
@@ -196,4 +198,5 @@ export class MainPage implements OnInit {
   nav2login(){
     this.navCtrl.navigateForward('/login');
   }
+
 }
