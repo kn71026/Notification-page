@@ -13,6 +13,7 @@
 </ion-header>
 
 <ion-content>
+  <div class="ion-text-center">
   <ion-item>
     <ion-label color="primary" position="floating" >Title</ion-label>
     <ion-input type="text" [(ngModel)]="body.title" required></ion-input>
@@ -22,4 +23,6 @@
     <ion-textarea rows="6" cols="20" placeholder="Enter any text here..." [(ngModel)]="body.description" required></ion-textarea>
   </ion-item>
   <ion-button class="submit-btn" expand="block" (click)="addItem()" type="submit" >Create</ion-button>
+</div>
 </ion-content>
+

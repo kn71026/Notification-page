@@ -1,25 +1,22 @@
 <ion-header>
   <ion-toolbar color="dark">
-    <ion-title  class="my_title">主要頁面</ion-title>
+    <ion-title  class="my_title">Main</ion-title>
     <ion-buttons slot="end">
-      <ion-button color="danger" (click)="nav2login()">登出</ion-button>
+      <button  class="LogOutButton" (click)="nav2login()">Logout</button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
 
-<ion-button  expand="full" (click)="add_notification()">新增通知</ion-button>
+<button  expand="full" class="AddButton" (click)="add_notification()">新增通知</button>
 <ion-button  expand="full" color="danger" *ngIf="errorFlag" (click)="reload()">重新載入</ion-button>
 <ion-button  expand="full" color="danger" *ngIf="errorFlag" (click)="nav2login()">登入</ion-button>
 
+<div class="ion-text-center">
 <ion-list>
-  <ion-item *ngFor="let item of data" class="item" >
-  <ion-label (click)="nav2update(item.id)">
-    <span>
-    {{item.id}}.
-    </span>
-    <br/>
+  <ion-item *ngFor="let item of data">
+  <ion-label (click)="nav2update(item.id)" class="item">
     <span class="myItemTitle">
     {{item.title}}
     </span>
@@ -37,6 +34,8 @@
     <ion-button slot="end" color="danger" (click)="DeleteItem(item.id)">delete</ion-button>
 </ion-item>
 </ion-list>
+</div>
+
 
 
 </ion-content>
