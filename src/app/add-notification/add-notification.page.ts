@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertController, NavController } from '@ionic/angular';
 import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import {  throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { Storage } from '@ionic/storage';
 
 @Component({
   selector: 'app-add-notification',
@@ -12,26 +13,27 @@ import { catchError } from 'rxjs/operators';
 })
 export class AddNotificationPage implements OnInit {
 
+  rawResponse = null;
+  callback;
+  accessToken = '';
   body = {
     title: '',
     description: '',
   };
-  rawResponse = null;
-  callback;
-
   constructor(
     private navCtrl: NavController,
     private alertController: AlertController,
     private http: HttpClient,
-    private router: Router
-
+    private router: Router,
+    private storage: Storage
   ) {
     if (this.router.getCurrentNavigation().extras.state) {
       this.callback = this.router.getCurrentNavigation().extras.state;
     }
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.accessToken = String(await this.storage.get('Token'));
   }
 
   close(){
@@ -53,7 +55,13 @@ export class AddNotificationPage implements OnInit {
 
     return new Promise((resolve, reject) => {
       const url = 'https://api.next.cocoing.info/admin/notifications';
-      this.http.post<any>(url, this.body).subscribe(
+      const httpOptions = {
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${this.accessToken}`,
+        }),
+      };
+
+      this.http.post<any>(url, this.body, httpOptions).subscribe(
         (res) => {
           console.log(res);
           this.callback();

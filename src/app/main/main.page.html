@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar color="dark">
-    <ion-title color="dark" class="my_title">主要頁面</ion-title>
+    <ion-title  class="my_title">主要頁面</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -8,6 +8,7 @@
 
 <ion-button  expand="full" (click)="add_notification()">新增通知</ion-button>
 <ion-button  expand="full" color="danger" *ngIf="errorFlag" (click)="reload()">重新載入</ion-button>
+<ion-button  expand="full" color="danger" *ngIf="errorFlag" (click)="nav2login()">登入</ion-button>
 
 <ion-list>
   <ion-item *ngFor="let item of data" class="item" >
@@ -16,17 +17,19 @@
     {{item.id}}.
     </span>
     <br/>
-    <span class="myitemtitle">
-      Title： {{item.title}}
+    <span class="myItemTitle">
+    {{item.title}}
     </span>
     
-    <span class="myitemdes">
-      <br/>      
-      description： {{item.description}}
+    <span class="myItemDes">      
+    {{item.description}}
     </span>
   </ion-label>
     <span class="my_date">
       最後修改時間： {{ item.updated_at | date:'short'}}
+    </span>
+    <span class="user">
+      last edited by {{ item.last_edited_by_user.name }}
     </span>
     <ion-button slot="end" color="danger" (click)="DeleteItem(item.id)">delete</ion-button>
 </ion-item>

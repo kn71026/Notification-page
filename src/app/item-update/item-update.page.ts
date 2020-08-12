@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MainPage, Data } from '../main/main.page';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import {  throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { Storage } from '@ionic/storage';
 
 @Component({
   selector: 'app-item-update',
@@ -19,18 +20,21 @@ export class ItemUpdatePage implements OnInit {
   allData: Data[];
   rawResponse = null;
   callback;
+  accessToken = '';
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private http: HttpClient,
     private alertController: AlertController,
+    private storage: Storage
   ) {
     if (this.router.getCurrentNavigation().extras.state) {
       this.callback = this.router.getCurrentNavigation().extras.state;
     }
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.accessToken = String(await this.storage.get('Token'));
     this.id = Number(this.route.snapshot.paramMap.get('id'));
     console.log(this.id);
     this.initialize();
@@ -56,10 +60,13 @@ export class ItemUpdatePage implements OnInit {
 
   async getAllNotificationsFromApi() {
     const url = 'https://api.next.cocoing.info/admin/notifications';
+    const httpOptions = {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${this.accessToken}`,
+      }),
+    };
 
-    // 這邊只是因為偷懶用了 any，還是要養成好習慣不要隨便用 any XDrz
-    // 將後端拿到的資料儲存在 local 變數中
-    const response = await this.http.get<any>(url).toPromise();
+    const response = await this.http.get<any>(url, httpOptions).toPromise();
     return response;
   }
 
@@ -120,8 +127,12 @@ export class ItemUpdatePage implements OnInit {
       title: this.title,
       description: this.des,
     };
-
-    this.http.patch<Response>(url, body).subscribe(
+    const httpOptions = {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${this.accessToken}`,
+      }),
+    };
+    this.http.patch<Response>(url, body, httpOptions).subscribe(
       (res) => {
         console.log(res);
         this.callback();

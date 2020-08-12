@@ -3,12 +3,16 @@ import { HttpClient, HttpHeaders, HttpErrorResponse  } from '@angular/common/htt
 import { AlertController, NavController, ToastController } from '@ionic/angular';
 import {  throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
+import { Storage } from '@ionic/storage';
+
 
 export interface Data {
   id: number;
   title: string;
   description: string;
   updated_at: number;
+  last_edited_by_user: string;
 }
 
 @Component({
@@ -22,26 +26,30 @@ export class MainPage implements OnInit {
   rawResponse = null;
   data: Data[];
   errorFlag = false;
+  accessToken = '';
 
   // Step 2. 在 constructor 裡面注入 HttpClient
   constructor(
     private navCtrl: NavController,
     private http: HttpClient,
     private alertController: AlertController,
-    private ToastCtr: ToastController
+    private router: Router,
+    private storage: Storage
   ) {}
 
   // Step 3. 撰寫呼叫 api 的程式碼
-  ngOnInit() {
+  async ngOnInit() {
+    this.accessToken = String(await this.storage.get('Token'));
     this.initialize();
   }
+
 
   async initialize() {
     try {
       // 在元件初始化的時候，透過後端 api 取得資料
       const response = await this.getAllNotificationsFromApi();
-
       console.log(response.data);
+      this.errorFlag = false;
 
       this.data = response.data;
       // Step 5. 將資料顯示到畫面上
@@ -63,9 +71,15 @@ export class MainPage implements OnInit {
   async getAllNotificationsFromApi() {
     const url = 'https://api.next.cocoing.info/admin/notifications';
 
+    const httpOptions = {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${this.accessToken}`,
+      }),
+    };
+
     // 這邊只是因為偷懶用了 any，還是要養成好習慣不要隨便用 any XDrz
     // 將後端拿到的資料儲存在 local 變數中
-    const response = await this.http.get<any>(url).toPromise();
+    const response = await this.http.get<any>(url, httpOptions).toPromise();
     return response;
   }
 
@@ -120,6 +134,7 @@ export class MainPage implements OnInit {
       };
       const httpOptions = {
         headers: new HttpHeaders({
+          Authorization: `Bearer ${this.accessToken}`,
           'X-HTTP-Method-Override': 'delete',
         }),
       };
@@ -176,5 +191,9 @@ export class MainPage implements OnInit {
         this.reload();
       }
     });
+  }
+
+  nav2login(){
+    this.navCtrl.navigateForward('/login');
   }
 }

@@ -6,7 +6,7 @@ const routes: Routes = [
   // 讓網頁的預設會跳轉到 /main 登入頁面
   {
     path: '',
-    redirectTo: '/main',
+    redirectTo: '/login',
     pathMatch: 'full',
   },
 
@@ -25,9 +25,11 @@ const routes: Routes = [
   {
     path: 'item-update/:id',
     component: ItemUpdatePage
+  },
+  {
+    path: 'login',
+    loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
   }
-
-
 
 ];
 
