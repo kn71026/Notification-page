@@ -2,7 +2,7 @@
     border: solid 1px rgb(133, 224, 247);
     border-radius: 20px;
     padding: 10px;
-    margin-top: 10%;
+    margin-top: 5%;
     margin-left: 20%;
     margin-right: 20%;
     box-shadow: 0px 0px 9px rgb(141, 230, 241);
@@ -22,12 +22,12 @@
     right: 0;
     margin: 0 auto;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px;
   }
   
   .my_cool_text {
     font: bold 1.25rem/1 poppins;
-    color: #71DFBE;
+    color: rgb(141, 230, 241);
     position: absolute;
     top: 50%;
     transform: translateY(-52%);
