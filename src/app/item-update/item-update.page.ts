@@ -59,7 +59,7 @@ export class ItemUpdatePage implements OnInit {
   }
 
   async getAllNotificationsFromApi() {
-    const url = 'https://api.next.cocoing.info/admin/notifications';
+    const url = 'https://api.cocoing.info/admin/notifications';
     const httpOptions = {
       headers: new HttpHeaders({
         Authorization: `Bearer ${this.accessToken}`,
@@ -121,7 +121,7 @@ export class ItemUpdatePage implements OnInit {
   async PatchNotificationsToApi() {
 
     return new Promise((resolve, reject) => {
-    const url = 'https://api.next.cocoing.info/admin/notifications';
+    const url = 'https://api.cocoing.info/admin/notifications';
     const body = {
       id: this.id,
       title: this.title,

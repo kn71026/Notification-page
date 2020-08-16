@@ -28,7 +28,9 @@ export class MainPage implements OnInit {
   rawResponse = null;
   data: Data[];
   errorFlag = false;
+  isCreator = false;
   accessToken = '';
+  nowUser: any;
 
   // Step 2. 在 constructor 裡面注入 HttpClient
   constructor(
@@ -41,6 +43,8 @@ export class MainPage implements OnInit {
 
   // Step 3. 撰寫呼叫 api 的程式碼
   async ngOnInit() {
+    this.nowUser = String(await this.storage.get('User'));
+    console.log(this.nowUser);
     this.accessToken = String(await this.storage.get('Token'));
     this.initialize();
   }
@@ -71,7 +75,7 @@ export class MainPage implements OnInit {
    * 並且將後端回應的原始資料直接顯示在畫面上
    */
   async getAllNotificationsFromApi() {
-    const url = 'https://api.next.cocoing.info/admin/notifications';
+    const url = 'https://api.cocoing.info/admin/notifications';
 
     const httpOptions = {
       headers: new HttpHeaders({
@@ -130,7 +134,7 @@ export class MainPage implements OnInit {
   async DeleteNotificationsFromApi(itemID) {
 
     return new Promise((resolve, reject) => {
-      const url = 'https://api.next.cocoing.info/admin/notifications';
+      const url = 'https://api.cocoing.info/admin/notifications';
       const body = {
         id: itemID,
       };
@@ -170,6 +174,66 @@ export class MainPage implements OnInit {
     const alert = await this.alertController.create({
       header: '刪除失敗',
       message: '資料刪除失敗',
+      buttons: ['OK'],
+    });
+
+    alert.present();
+  }
+
+  async sendItem(itemID){
+    try{
+      const response = await this.sendNotificationsFromApi(itemID);
+      console.log({ response });
+
+    } catch (error) {
+      console.error('catch error!');
+      catchError(this.handleError);
+    }
+  }
+
+
+  async sendNotificationsFromApi(itemID) {
+
+    return new Promise((resolve, reject) => {
+      const url = 'https://api.cocoing.info/admin/notifications/send';
+      const body = {
+        id: itemID,
+      };
+      const httpOptions = {
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${this.accessToken}`,
+        }),
+      };
+      this.http.post<any>(url, body, httpOptions).subscribe(
+        (res) => {
+          console.log(res);
+          this.presentSendAlert();
+          this.reload();
+          resolve(res);
+        },
+        (err) => {
+          console.error(err);
+          this.presentFailSendAlert();
+          reject(err);
+        },
+      );
+      });
+  }
+
+  async presentSendAlert() {
+    const alert = await this.alertController.create({
+      header: '送出成功',
+      message: '通知已成功送出',
+      buttons: ['OK'],
+    });
+
+    alert.present();
+  }
+
+  async presentFailSendAlert() {
+    const alert = await this.alertController.create({
+      header: '送出失敗',
+      message: '通知送出失敗',
       buttons: ['OK'],
     });
 

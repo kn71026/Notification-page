@@ -19,6 +19,7 @@ export class LoginPage implements OnInit {
   email = '';
   password = '';
   token: any;
+  user: any;
   remember = false;
   data: any;
 
@@ -37,8 +38,11 @@ export class LoginPage implements OnInit {
       let response: any;
       response = await this.postFromApi();
       console.log({ response });
-
+      this.user = response.data.user.name;
       this.token = response.data.token.access_token;
+      console.log(this.user);
+      console.log(this.token);
+      await this.storage.set('User', this.user);
       await this.storage.set('Token', this.token);
       this.navCtrl.navigateForward('/main');
       } catch (error) {
@@ -49,7 +53,7 @@ export class LoginPage implements OnInit {
 
   async postFromApi(){
     return new Promise((resolve, reject) => {
-      const url = 'https://api.next.cocoing.info/v1/login';
+      const url = 'https://api.cocoing.info/v1/login';
       const body = {
         email: this.email,
         password: this.password,

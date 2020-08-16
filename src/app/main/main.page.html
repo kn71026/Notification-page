@@ -15,7 +15,7 @@
 
 <div class="ion-text-center">
 <ion-list>
-  <ion-item *ngFor="let item of data">
+  <ion-item *ngFor="let item of data; ">
   <ion-label (click)="nav2update(item.id)" class="item">
     <span class="myItemTitle">
     {{item.title}}
@@ -31,7 +31,10 @@
     <span class="user">
       last edited by {{ item.last_edited_by_user.name }}
     </span>
-    <ion-button slot="end" color="danger" (click)="DeleteItem(item.id)">delete</ion-button>
+    <h1 class="icon_send" *ngIf="item.last_edited_by_user.name === nowUser">    
+      <a (click)="sendItem(item.id)" >send</a>
+    </h1>
+    <ion-icon name="trash-outline" (click)="DeleteItem(item.id)" style="cursor:pointer;" ></ion-icon>
 </ion-item>
 </ion-list>
 </div>

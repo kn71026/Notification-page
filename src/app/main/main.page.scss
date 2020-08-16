@@ -127,6 +127,23 @@ button:before{
     font-size: 12px;
     color:gray;
 }
+.icon_send{
+    position: absolute;
+    right: 25px;
+    bottom: -3px;
+}
+
+.icon_send a{
+    cursor: pointer;
+    background-image: url(../../assets/icon/icon_1.gif);
+    background-size: contain;
+    display: block;
+    text-indent: 101%;
+    overflow: hidden;
+    white-space: nowrap;
+    background-repeat: no-repeat;
+}
+
 
 @media(max-width:1213px){
     .my_title{
