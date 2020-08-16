@@ -1,17 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { AlertController, NavController } from '@ionic/angular';
 import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import {  throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Storage } from '@ionic/storage';
+declare var anime: any;
+
 
 @Component({
   selector: 'app-add-notification',
   templateUrl: './add-notification.page.html',
   styleUrls: ['./add-notification.page.scss'],
 })
-export class AddNotificationPage implements OnInit {
+export class AddNotificationPage implements AfterViewInit {
+  @ViewChild('my_cool_button') my_cool_button: ElementRef;
+  @ViewChild('my_cool_text') my_cool_text: ElementRef;
+  @ViewChild('progress_bar') progress_bar: ElementRef;
+  @ViewChild('my_check') my_check: ElementRef;
+  @ViewChild('my_cool_svg') my_cool_svg: ElementRef;
+
 
   rawResponse = null;
   callback;
@@ -20,6 +28,8 @@ export class AddNotificationPage implements OnInit {
     title: '',
     description: '',
   };
+  basicTimeline;
+
   constructor(
     private navCtrl: NavController,
     private alertController: AlertController,
@@ -32,7 +42,59 @@ export class AddNotificationPage implements OnInit {
     }
   }
 
-  async ngOnInit() {
+  async ngAfterViewInit() {
+    this.basicTimeline = anime.timeline({
+      autoplay: false
+    });
+    const pathEl = this.my_check.nativeElement;
+    console.log(pathEl);
+    const offset = anime.setDashoffset(pathEl);
+    pathEl.setAttribute('stroke-dashoffset', offset);
+
+    this.basicTimeline
+      .add({
+        targets: this.my_cool_text.nativeElement,
+        duration: 1,
+        opacity: '0'
+      })
+      .add({
+        targets: this.my_cool_button.nativeElement,
+        duration: 1300,
+        height: 10,
+        width: 300,
+        backgroundColor: '#2B2D2F',
+        border: '0',
+        borderRadius: 100
+      })
+      .add({
+        targets: this.progress_bar.nativeElement,
+        duration: 2000,
+        width: 300,
+        easing: 'linear'
+      })
+      .add({
+        targets: this.my_cool_button.nativeElement,
+        width: 0,
+        duration: 1
+      })
+      .add({
+        targets: this.progress_bar.nativeElement,
+        width: 80,
+        height: 80,
+        delay: 500,
+        duration: 750,
+        borderRadius: 80,
+        backgroundColor: '#71DFBE'
+      })
+      .add({
+        targets: pathEl,
+        strokeDashoffset: [offset, 0],
+        duration: 200,
+        easing: 'easeInOutSine',
+        complete : () => this.addItem()
+      });
+
+
     this.accessToken = String(await this.storage.get('Token'));
   }
 
@@ -40,13 +102,19 @@ export class AddNotificationPage implements OnInit {
     this.navCtrl.navigateBack('/main');
   }
 
+  submit(){
+    this.basicTimeline.play();
+    this.my_cool_svg.nativeElement.style.cursor = 'default';
+  }
+
   async addItem(){
     try {
+      console.log(this.PostNewNotificationsToApi);
       const response = await this.PostNewNotificationsToApi();
       console.log({ response });
 
     } catch (error) {
-      console.error('catch error!');
+      console.error(error);
       catchError(this.handleError);
     }
   }

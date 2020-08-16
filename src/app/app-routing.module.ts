@@ -29,7 +29,15 @@ const routes: Routes = [
   {
     path: 'login',
     loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
+  },  {
+    path: 'animate',
+    loadChildren: () => import('./animate/animate.module').then( m => m.AnimatePageModule)
+  },
+  {
+    path: 'animate',
+    loadChildren: () => import('./animate/animate.module').then( m => m.AnimatePageModule)
   }
+
 
 ];
 
