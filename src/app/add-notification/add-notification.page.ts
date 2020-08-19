@@ -47,7 +47,7 @@ export class AddNotificationPage implements AfterViewInit {
       autoplay: false
     });
     const pathEl = this.my_check.nativeElement;
-    console.log(pathEl);
+    // console.log(pathEl);
     const offset = anime.setDashoffset(pathEl);
     pathEl.setAttribute('stroke-dashoffset', offset);
 
@@ -68,7 +68,7 @@ export class AddNotificationPage implements AfterViewInit {
       })
       .add({
         targets: this.progress_bar.nativeElement,
-        duration: 2000,
+        duration: 200,
         width: 300,
         easing: 'linear'
       })

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild  } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MainPage, Data } from '../main/main.page';
@@ -6,13 +6,21 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import {  throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Storage } from '@ionic/storage';
+declare var anime: any;
+
 
 @Component({
   selector: 'app-item-update',
   templateUrl: './item-update.page.html',
   styleUrls: ['./item-update.page.scss'],
 })
-export class ItemUpdatePage implements OnInit {
+export class ItemUpdatePage implements AfterViewInit {
+  @ViewChild('my_cool_button') my_cool_button: ElementRef;
+  @ViewChild('my_cool_text') my_cool_text: ElementRef;
+  @ViewChild('progress_bar') progress_bar: ElementRef;
+  @ViewChild('my_check') my_check: ElementRef;
+  @ViewChild('my_cool_svg') my_cool_svg: ElementRef;
+  basicTimeline;
   item: Data;
   id: number;
   title = '';
@@ -21,6 +29,8 @@ export class ItemUpdatePage implements OnInit {
   rawResponse = null;
   callback;
   accessToken = '';
+
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -33,7 +43,57 @@ export class ItemUpdatePage implements OnInit {
     }
   }
 
-  async ngOnInit() {
+  async ngAfterViewInit() {
+    this.basicTimeline = anime.timeline({
+      autoplay: false
+    });
+    const pathEl = this.my_check.nativeElement;
+    console.log(pathEl);
+    const offset = anime.setDashoffset(pathEl);
+    pathEl.setAttribute('stroke-dashoffset', offset);
+
+    this.basicTimeline
+      .add({
+        targets: this.my_cool_text.nativeElement,
+        duration: 1,
+        opacity: '0'
+      })
+      .add({
+        targets: this.my_cool_button.nativeElement,
+        duration: 1300,
+        height: 10,
+        width: 300,
+        backgroundColor: '#2B2D2F',
+        border: '0',
+        borderRadius: 100
+      })
+      .add({
+        targets: this.progress_bar.nativeElement,
+        duration: 200,
+        width: 300,
+        easing: 'linear'
+      })
+      .add({
+        targets: this.my_cool_button.nativeElement,
+        width: 0,
+        duration: 1
+      })
+      .add({
+        targets: this.progress_bar.nativeElement,
+        width: 80,
+        height: 80,
+        delay: 500,
+        duration: 750,
+        borderRadius: 80,
+        backgroundColor: '#71DFBE'
+      })
+      .add({
+        targets: pathEl,
+        strokeDashoffset: [offset, 0],
+        duration: 100,
+        easing: 'easeInOutSine',
+        complete : () => this.updateItem()
+      });
     this.accessToken = String(await this.storage.get('Token'));
     this.id = Number(this.route.snapshot.paramMap.get('id'));
     console.log(this.id);
@@ -105,6 +165,10 @@ export class ItemUpdatePage implements OnInit {
     this.router.navigate(['/main']);
   }
 
+  update(){
+    this.basicTimeline.play();
+    this.my_cool_svg.nativeElement.style.cursor = 'default';
+  }
 
   async updateItem(){
     try {
