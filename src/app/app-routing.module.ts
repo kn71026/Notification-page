@@ -36,6 +36,10 @@ const routes: Routes = [
   {
     path: 'animate',
     loadChildren: () => import('./animate/animate.module').then( m => m.AnimatePageModule)
+  },
+  {
+    path: 'login-test',
+    loadChildren: () => import('./login-test/login-test.module').then( m => m.LoginTestPageModule)
   }
 
 
