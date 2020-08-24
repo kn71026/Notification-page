@@ -4,37 +4,48 @@
     <ion-buttons slot="start">
       <ion-back-button></ion-back-button>
     </ion-buttons>
-    <ion-buttons slot="end" class="mybutton">
-      <ion-button (click)="close()" > 
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">
         <ion-icon slot="icon-only" name="close"></ion-icon>
-    </ion-button>
+      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
   <div class="ion-text-center">
-  <ion-item>
-    <ion-label color="primary" position="floating" >Title</ion-label>
-    <ion-input type="text" [(ngModel)]="body.title" required></ion-input>
-  </ion-item>
-  <ion-item>
-    <ion-label color="primary" position="floating" >Description</ion-label>
-    <ion-textarea rows="2" cols="20" placeholder="Enter any text here..." [(ngModel)]="body.description" required></ion-textarea>
-  </ion-item>
-  <!-- <ion-button class="submit-btn" expand="block" (click)="addItem()" type="submit" >Create</ion-button> -->
-  <div #my_cool_button class="my_cool_button" (click)="submit()">
-    <div #my_cool_text class="my_cool_text" (click)="submit()" >Submit</div>
+    <ion-item>
+      <ion-label color="primary" position="floating">Title</ion-label>
+      <ion-input type="text" [(ngModel)]="body.title" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label color="primary" position="floating">Description</ion-label>
+      <ion-textarea
+        rows="2"
+        cols="20"
+        placeholder="Enter any text here..."
+        [(ngModel)]="body.description"
+        required
+      ></ion-textarea>
+    </ion-item>
+    <!-- <ion-button class="submit-btn" expand="block" (click)="addItem()" type="submit" >Create</ion-button> -->
+    <div #myCoolButton class="myCoolButton" (click)="submit()">
+      <div #myText class="myText" (click)="submit()">Submit</div>
+    </div>
+    <div #progressBar class="progressBar"></div>
+    <svg
+      #mySvg
+      x="0px"
+      y="0px"
+      viewBox="0 0 25 30"
+      style="enable-background: new 0 0 25 30; cursor: pointer;"
+      (click)="submit()"
+    >
+      <path
+        #myCheck
+        class="st0 myCheck"
+        d="M2,19.2C5.9,23.6,9.4,28,9.4,28L23,2"
+      />
+    </svg>
   </div>
-  <div #progress_bar class="progress_bar"></div>
-  <svg #my_cool_svg x="0px" y="0px"
-  viewBox="0 0 25 30" style="enable-background:new 0 0 25 30;cursor: pointer;" (click)="submit()">
-  <path #my_check  class="st0 my_check" d="M2,19.2C5.9,23.6,9.4,28,9.4,28L23,2"/>
-</svg>
-</div>
-
 </ion-content>
-
-
-
-

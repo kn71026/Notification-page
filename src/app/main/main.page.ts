@@ -1,11 +1,13 @@
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse  } from '@angular/common/http';
-import { AlertController, NavController, ToastController } from '@ionic/angular';
-import {  throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
+import { AlertController, NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
-
+import { throwError, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 
 export interface Data {
   id: number;
@@ -17,13 +19,16 @@ export interface Data {
   };
 }
 
+interface Response {
+  message: string;
+  data: any;
+}
+
 @Component({
   selector: 'app-main',
   templateUrl: './main.page.html',
   styleUrls: ['./main.page.scss'],
 })
-
-
 export class MainPage implements OnInit {
   rawResponse = null;
   data: Data[];
@@ -31,14 +36,15 @@ export class MainPage implements OnInit {
   isCreator = false;
   accessToken = '';
   nowUser: any;
+  data$ = of(null);
+
 
   // Step 2. 在 constructor 裡面注入 HttpClient
   constructor(
     private navCtrl: NavController,
     private http: HttpClient,
     private alertController: AlertController,
-    private router: Router,
-    private storage: Storage
+    private storage: Storage,
   ) {}
 
   // Step 3. 撰寫呼叫 api 的程式碼
@@ -46,52 +52,24 @@ export class MainPage implements OnInit {
     this.nowUser = String(await this.storage.get('User'));
     console.log(this.nowUser);
     this.accessToken = String(await this.storage.get('Token'));
-    this.initialize();
+    this.data$ = this.getNotificationByObservable();
   }
 
-
-  async initialize() {
-    try {
-      // 在元件初始化的時候，透過後端 api 取得資料
-      const response = await this.getAllNotificationsFromApi();
-      console.log(response.data);
-      this.errorFlag = false;
-
-      this.data = response.data;
-      // Step 5. 將資料顯示到畫面上
-      this.rawResponse = response;
-    } catch (error) {
-      // Step 4. 過程中如果發生錯誤，需要另外進行的錯誤處理
-      console.error(error);
-      this.errorFlag = true;
-      catchError(this.handleError),
-      this.presentErrorAlert();
-    }
-  }
-
-  /**
-   * 從後端 api 取得所有 notification 的資料
-   *
-   * 並且將後端回應的原始資料直接顯示在畫面上
-   */
-  async getAllNotificationsFromApi() {
+  getNotificationByObservable(){
     const url = 'https://api.cocoing.info/admin/notifications';
-
     const httpOptions = {
       headers: new HttpHeaders({
         Authorization: `Bearer ${this.accessToken}`,
       }),
     };
 
-    // 這邊只是因為偷懶用了 any，還是要養成好習慣不要隨便用 any XDrz
-    // 將後端拿到的資料儲存在 local 變數中
-    const response = await this.http.get<any>(url, httpOptions).toPromise();
-    return response;
+    return this.http.get<any>(url, httpOptions).pipe(
+      map((response) => response.data),
+      catchError(this.handleError),
+    );
   }
 
-  /**
-   * 顯示取得資料失敗的錯誤訊息
-   */
+
   async presentErrorAlert() {
     const alert = await this.alertController.create({
       header: '發生錯誤',
@@ -103,6 +81,7 @@ export class MainPage implements OnInit {
   }
 
   private handleError = (error: HttpErrorResponse) => {
+    this.presentErrorAlert();
     if (error.error instanceof ErrorEvent) {
       // "前端本身" or "沒連上網路" 而產生的錯誤
       console.error('An error occurred:', error.error.message);
@@ -114,26 +93,25 @@ export class MainPage implements OnInit {
     return throwError('Something bad happened; please try again later.');
   }
 
-  reload(){
-    this.initialize();
+  reload() {
+    this.data$ = this.getNotificationByObservable();
   }
 
-
-  async DeleteItem(itemID){
-    try{
-      const response = await this.DeleteNotificationsFromApi(itemID);
+  DeleteItem(itemID) {
+      this.DeleteNotificationsFromApi(itemID)
+      .subscribe({
+        next: () => {
+          this.presentDeleteAlert();
+          this.reload();
+        },
+        error: (error) => console.error(error),
+      });
+      const response = this.DeleteNotificationsFromApi(itemID);
       console.log({ response });
-
-    } catch (error) {
-      console.error('catch error!');
-      catchError(this.handleError);
-    }
+      this.getNotificationByObservable();
   }
 
-
-  async DeleteNotificationsFromApi(itemID) {
-
-    return new Promise((resolve, reject) => {
+  DeleteNotificationsFromApi(itemID) {
       const url = 'https://api.cocoing.info/admin/notifications';
       const body = {
         id: itemID,
@@ -144,56 +122,25 @@ export class MainPage implements OnInit {
           'X-HTTP-Method-Override': 'delete',
         }),
       };
-      this.http.post<any>(url, body, httpOptions).subscribe(
-        (res) => {
-          console.log(res);
-          this.presentDeleteAlert();
-          this.reload();
-          resolve(res);
-        },
-        (err) => {
-          console.error(err);
-          this.presentFailDeleteAlert();
-          reject(err);
-        },
-      );
-      });
+      return this.http.post<Response>(url, body, httpOptions).pipe(
+        map(response => response.data),
+        catchError(this.handleError),
+    );
   }
 
-  async presentDeleteAlert() {
-    const alert = await this.alertController.create({
-      header: '刪除成功',
-      message: '資料已刪除成功',
-      buttons: ['OK'],
-    });
 
-    alert.present();
-  }
-
-  async presentFailDeleteAlert() {
-    const alert = await this.alertController.create({
-      header: '刪除失敗',
-      message: '資料刪除失敗',
-      buttons: ['OK'],
-    });
-
-    alert.present();
-  }
-
-  async sendItem(itemID){
-    try{
+  
+  async sendItem(itemID) {
+    try {
       const response = await this.sendNotificationsFromApi(itemID);
       console.log({ response });
-
     } catch (error) {
       console.error('catch error!');
       catchError(this.handleError);
     }
   }
 
-
   async sendNotificationsFromApi(itemID) {
-
     return new Promise((resolve, reject) => {
       const url = 'https://api.cocoing.info/admin/notifications/send';
       const body = {
@@ -216,8 +163,28 @@ export class MainPage implements OnInit {
           this.presentFailSendAlert();
           reject(err);
         },
-      );
-      });
+        );
+    });
+  }
+
+  async presentDeleteAlert() {
+    const alert = await this.alertController.create({
+      header: '刪除成功',
+      message: '資料已刪除成功',
+      buttons: ['OK'],
+    });
+
+    alert.present();
+  }
+
+  async presentFailDeleteAlert() {
+    const alert = await this.alertController.create({
+      header: '刪除失敗',
+      message: '資料刪除失敗',
+      buttons: ['OK'],
+    });
+
+    alert.present();
   }
 
   async presentSendAlert() {
@@ -240,27 +207,23 @@ export class MainPage implements OnInit {
     alert.present();
   }
 
-
-  add_notification(){
+  add_notification() {
     this.navCtrl.navigateForward('/add-notification', {
-      state:
-      () => {
-        this.initialize();
-      }
-      });
-  }
-
-  nav2update(itemId){
-    this.navCtrl.navigateForward('/item-update/' + itemId , {
-      state:
-      () => {
+      state: () => {
         this.reload();
-      }
+      },
     });
   }
 
-  nav2login(){
-    this.navCtrl.navigateForward('/login');
+  nav2update(itemId) {
+    this.navCtrl.navigateForward('/item-update/' + itemId, {
+      state: () => {
+        this.getNotificationByObservable();
+      },
+    });
   }
 
+  nav2login() {
+    this.navCtrl.navigateForward('/login');
+  }
 }

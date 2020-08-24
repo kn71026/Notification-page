@@ -3,7 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { ItemUpdatePage } from './item-update/item-update.page';
 
 const routes: Routes = [
-  // 讓網頁的預設會跳轉到 /main 登入頁面
+  // 讓網頁的預設會跳轉到 /login 登入頁面
   {
     path: '',
     redirectTo: '/login',
@@ -29,7 +29,8 @@ const routes: Routes = [
   {
     path: 'login',
     loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
-  },  {
+  },
+  {
     path: 'animate',
     loadChildren: () => import('./animate/animate.module').then( m => m.AnimatePageModule)
   },

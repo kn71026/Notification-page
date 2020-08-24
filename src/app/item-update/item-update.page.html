@@ -9,14 +9,22 @@
 
 <ion-content padding>
   <div class="ion-text-center">
+    <ng-container *ngIf="data$ | async as data">
+      <ion-list>
+          {{data.title}}, {{data.description}}
+      </ion-list>
+      
+    </ng-container>
+        <ng-container *ngIf="data$ | async as data">
     <ion-item>
       <ion-label color="primary" position="floating" >Title</ion-label>
-      <ion-input type="text"  [(ngModel)]="title" required></ion-input>
+      <ion-input type="text"  [(ngModel)]="data.title" required></ion-input>
     </ion-item>
     <ion-item>
       <ion-label color="primary" position="floating" >Description</ion-label>
-      <ion-textarea type="text" [(ngModel)]="des" required></ion-textarea>
+      <ion-textarea type="text" [(ngModel)]="data.description" required></ion-textarea>
     </ion-item>
+  </ng-container>
     <!-- <ion-button class="submit-btn" expand="block" (click)="updateItem()" type="submit" >update</ion-button> -->
     <div #my_cool_button class="my_cool_button" (click)="update()">
       <div #my_cool_text class="my_cool_text" (click)="update()" >Update</div>

@@ -1,21 +1,16 @@
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AlertController, NavController } from '@ionic/angular';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import {  throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { Storage } from '@ionic/storage';
-import { analyzeAndValidateNgModules } from '@angular/compiler';
-
+import { throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
 })
-
-
 export class LoginPage implements OnInit {
-
   email = '';
   password = '';
   token: any;
@@ -27,31 +22,30 @@ export class LoginPage implements OnInit {
     private navCtrl: NavController,
     private http: HttpClient,
     public alertCtrl: AlertController,
-    private storage: Storage
-  ) { }
+    private storage: Storage,
+  ) {}
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
-  async login(){
+  async login() {
     try {
       let response: any;
       response = await this.postFromApi();
-      console.log({ response });
+      // console.log({ response });
       this.user = response.data.user.name;
       this.token = response.data.token.access_token;
       console.log(this.user);
-      console.log(this.token);
+      // console.log(this.token);
       await this.storage.set('User', this.user);
       await this.storage.set('Token', this.token);
       this.navCtrl.navigateForward('/main');
-      } catch (error) {
+    } catch (error) {
       console.error('catch error!');
       catchError(this.handleError);
     }
   }
 
-  async postFromApi(){
+  async postFromApi() {
     return new Promise((resolve, reject) => {
       const url = 'https://api.cocoing.info/v1/login';
       const body = {
@@ -72,9 +66,9 @@ export class LoginPage implements OnInit {
         },
       );
     });
-}
+  }
 
-  SignIn(){
+  SignIn() {
     this.presentAlert2();
   }
 
@@ -83,7 +77,7 @@ export class LoginPage implements OnInit {
       header: 'ERROR',
       subHeader: 'login failed',
       message: '帳號密碼錯誤',
-      buttons: ['OK']
+      buttons: ['OK'],
     });
     await alert.present();
     const result = await alert.onDidDismiss();
@@ -94,7 +88,7 @@ export class LoginPage implements OnInit {
       header: 'ERROR',
       subHeader: 'signIn failed',
       message: '還沒寫QQ',
-      buttons: ['OK']
+      buttons: ['OK'],
     });
     await alert.present();
     const result = await alert.onDidDismiss();
@@ -110,6 +104,5 @@ export class LoginPage implements OnInit {
     }
     // 最後的回傳值的型別應為 observable
     return throwError('Something bad happened; please try again later.');
-  }
-
+  };
 }

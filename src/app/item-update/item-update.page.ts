@@ -3,9 +3,10 @@ import { AlertController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MainPage, Data } from '../main/main.page';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import {  throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import {  throwError, of, Observable } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { Storage } from '@ionic/storage';
+import { title } from 'process';
 declare var anime: any;
 
 
@@ -21,14 +22,16 @@ export class ItemUpdatePage implements AfterViewInit {
   @ViewChild('my_check') my_check: ElementRef;
   @ViewChild('my_cool_svg') my_cool_svg: ElementRef;
   basicTimeline;
-  item: Data;
   id: number;
-  title = '';
-  des = '';
+  title: any;
+  des: any;
   allData: Data[];
   rawResponse = null;
   callback;
   accessToken = '';
+  data$ = of(null);
+  response: any;
+  item: Data;
 
 
   constructor(
@@ -48,74 +51,106 @@ export class ItemUpdatePage implements AfterViewInit {
       autoplay: false
     });
     const pathEl = this.my_check.nativeElement;
-    console.log(pathEl);
     const offset = anime.setDashoffset(pathEl);
     pathEl.setAttribute('stroke-dashoffset', offset);
 
     this.basicTimeline
-      .add({
-        targets: this.my_cool_text.nativeElement,
-        duration: 1,
-        opacity: '0'
-      })
-      .add({
-        targets: this.my_cool_button.nativeElement,
-        duration: 1300,
-        height: 10,
-        width: 300,
-        backgroundColor: '#2B2D2F',
-        border: '0',
-        borderRadius: 100
-      })
-      .add({
-        targets: this.progress_bar.nativeElement,
-        duration: 200,
-        width: 300,
-        easing: 'linear'
-      })
-      .add({
-        targets: this.my_cool_button.nativeElement,
-        width: 0,
-        duration: 1
-      })
-      .add({
-        targets: this.progress_bar.nativeElement,
-        width: 80,
-        height: 80,
-        delay: 500,
-        duration: 750,
-        borderRadius: 80,
-        backgroundColor: '#71DFBE'
-      })
-      .add({
-        targets: pathEl,
-        strokeDashoffset: [offset, 0],
-        duration: 100,
-        easing: 'easeInOutSine',
-        complete : () => this.updateItem()
-      });
+    .add({
+      targets: this.my_cool_text.nativeElement,
+      duration: 1,
+      opacity: '0'
+    })
+    .add({
+      targets: this.my_cool_button.nativeElement,
+      duration: 1300,
+      height: 10,
+      width: 300,
+      backgroundColor: '#2B2D2F',
+      border: '0',
+      borderRadius: 100
+    })
+    .add({
+      targets: this.progress_bar.nativeElement,
+      duration: 200,
+      width: 300,
+      easing: 'linear'
+    })
+    .add({
+      targets: this.my_cool_button.nativeElement,
+      width: 0,
+      duration: 1
+    })
+    .add({
+      targets: this.progress_bar.nativeElement,
+      width: 80,
+      height: 80,
+      delay: 500,
+      duration: 750,
+      borderRadius: 80,
+      backgroundColor: '#71DFBE'
+    })
+    .add({
+      targets: pathEl,
+      strokeDashoffset: [offset, 0],
+      duration: 100,
+      easing: 'easeInOutSine',
+      complete : () => this.updateItem()
+    });
     this.accessToken = String(await this.storage.get('Token'));
     this.id = Number(this.route.snapshot.paramMap.get('id'));
     console.log(this.id);
-    this.initialize();
+    this.data$ = this.getNotificationByObservable();
+    // this.initialize();
+  }
+
+  getNotificationByObservable(){
+    const url = 'https://api.cocoing.info/admin/notifications';
+    const httpOptions = {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${this.accessToken}`,
+      }),
+    };
+
+    return this.http.get<any>(url, httpOptions).pipe(
+      // 透過 tap 來查看，轉換前的樣子
+      tap((response) => console.log('before map():', response)),
+
+      // 透過 map 運算，把 response 都轉換成 response.data
+      // (換句話說就是只保留 response 中的 data)
+      map((response) => response.data.find( (item) => item.id === this.id)),
+      // map( this.title => response.title),
+      // 透過 tap 來查看，轉換後的結果
+      tap((response) => console.log('after map():', response)),
+    );
   }
 
   async initialize() {
     try {
       // 在元件初始化的時候，透過後端 api 取得資料
-      const response = await this.getAllNotificationsFromApi();
+      const response  = this.getNotificationByObservable();
 
       // console.log(response.data);
-      this.item = response.data.find(item => item.id === this.id);
-      // console.log(this.item.title);
-      this.title = this.item.title;
-      this.des = this.item.description;
+      // this.item = response.find(item => item.id === this.id);
       this.rawResponse = response;
     } catch (error) {
 
       console.error(error);
       this.presentErrorAlert();
     }
+  }
+
+
+  getItem(id: number): Observable<Data> {
+    const url = 'https://api.cocoing.info/admin/notifications';
+    const httpOptions = {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${this.accessToken}`,
+      }),
+    };
+    return this.http.get<any>(url, httpOptions).pipe(
+      tap(_ => console.log(`fetched item id=${id}`)),
+      catchError(this.handleError),
+    );
   }
 
   async getAllNotificationsFromApi() {

@@ -1,25 +1,31 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { AlertController, NavController } from '@ionic/angular';
-import { Router, ActivatedRoute, NavigationExtras } from '@angular/router';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import {  throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import { Storage } from '@ionic/storage';
+import { throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 declare var anime: any;
 
-
+interface Response {
+  message: string;
+  data: any;
+}
 @Component({
   selector: 'app-add-notification',
   templateUrl: './add-notification.page.html',
   styleUrls: ['./add-notification.page.scss'],
 })
 export class AddNotificationPage implements AfterViewInit {
-  @ViewChild('my_cool_button') my_cool_button: ElementRef;
-  @ViewChild('my_cool_text') my_cool_text: ElementRef;
-  @ViewChild('progress_bar') progress_bar: ElementRef;
-  @ViewChild('my_check') my_check: ElementRef;
-  @ViewChild('my_cool_svg') my_cool_svg: ElementRef;
-
+  @ViewChild('myCoolButton') myCoolButton: ElementRef;
+  @ViewChild('myText') myText: ElementRef;
+  @ViewChild('progressBar') progressBar: ElementRef;
+  @ViewChild('myCheck') myCheck: ElementRef;
+  @ViewChild('mySvg') mySvg: ElementRef;
 
   rawResponse = null;
   callback;
@@ -35,7 +41,7 @@ export class AddNotificationPage implements AfterViewInit {
     private alertController: AlertController,
     private http: HttpClient,
     private router: Router,
-    private storage: Storage
+    private storage: Storage,
   ) {
     if (this.router.getCurrentNavigation().extras.state) {
       this.callback = this.router.getCurrentNavigation().extras.state;
@@ -44,107 +50,95 @@ export class AddNotificationPage implements AfterViewInit {
 
   async ngAfterViewInit() {
     this.basicTimeline = anime.timeline({
-      autoplay: false
+      autoplay: false,
     });
-    const pathEl = this.my_check.nativeElement;
+    const pathEl = this.myCheck.nativeElement;
     // console.log(pathEl);
     const offset = anime.setDashoffset(pathEl);
     pathEl.setAttribute('stroke-dashoffset', offset);
 
     this.basicTimeline
       .add({
-        targets: this.my_cool_text.nativeElement,
+        targets: this.myText.nativeElement,
         duration: 1,
-        opacity: '0'
+        opacity: '0',
       })
       .add({
-        targets: this.my_cool_button.nativeElement,
+        targets: this.myCoolButton.nativeElement,
         duration: 1300,
         height: 10,
         width: 300,
         backgroundColor: '#2B2D2F',
         border: '0',
-        borderRadius: 100
+        borderRadius: 100,
       })
       .add({
-        targets: this.progress_bar.nativeElement,
+        targets: this.progressBar.nativeElement,
         duration: 200,
         width: 300,
-        easing: 'linear'
+        easing: 'linear',
       })
       .add({
-        targets: this.my_cool_button.nativeElement,
+        targets: this.myCoolButton.nativeElement,
         width: 0,
-        duration: 1
+        duration: 1,
       })
       .add({
-        targets: this.progress_bar.nativeElement,
+        targets: this.progressBar.nativeElement,
         width: 80,
         height: 80,
         delay: 500,
         duration: 750,
         borderRadius: 80,
-        backgroundColor: '#71DFBE'
+        backgroundColor: '#71DFBE',
       })
       .add({
         targets: pathEl,
         strokeDashoffset: [offset, 0],
         duration: 200,
         easing: 'easeInOutSine',
-        complete : () => this.addItem()
+        complete: () => this.addItem(),
       });
-
 
     this.accessToken = String(await this.storage.get('Token'));
   }
 
-  close(){
+  close() {
     this.navCtrl.navigateBack('/main');
   }
 
-  submit(){
+  submit() {
     this.basicTimeline.play();
-    this.my_cool_svg.nativeElement.style.cursor = 'default';
+    this.mySvg.nativeElement.style.cursor = 'default';
   }
 
-  async addItem(){
-    try {
-      console.log(this.PostNewNotificationsToApi);
-      const response = await this.PostNewNotificationsToApi();
-      console.log({ response });
-
-    } catch (error) {
-      console.error(error);
-      catchError(this.handleError);
-    }
-  }
-
-  async PostNewNotificationsToApi() {
-
-    return new Promise((resolve, reject) => {
-      const url = 'https://api.cocoing.info/admin/notifications';
-      const httpOptions = {
-        headers: new HttpHeaders({
-          Authorization: `Bearer ${this.accessToken}`,
-        }),
-      };
-
-      this.http.post<any>(url, this.body, httpOptions).subscribe(
-        (res) => {
-          console.log(res);
-          this.callback();
+  async addItem() {
+      this.PostNewNotificationsToApiPipe()
+      .subscribe({
+        next: () => {
           this.presentAddAlert();
+          this.callback();
           this.close();
-          resolve(res);
         },
-        (err) => {
-          console.error(err);
-          this.presentAddFailAlert();
-          reject(err);
-        },
-      );
+        error: (error) => console.error(error),
       });
   }
+
+  PostNewNotificationsToApiPipe() {
+    const url = 'https://api.cocoing.info/admin/notifications';
+
+    const httpOptions = {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${this.accessToken}`,
+      }),
+    };
+
+    return  this.http.post<Response>(url, this.body, httpOptions).pipe(
+      map(response => response.data),
+      catchError(this.handleError),
+    );
+  }
+
 
   async presentAddAlert() {
     const alert = await this.alertController.create({
@@ -164,7 +158,6 @@ export class AddNotificationPage implements AfterViewInit {
     alert.present();
   }
 
-
   private handleError = (error: HttpErrorResponse) => {
     if (error.error instanceof ErrorEvent) {
       // "前端本身" or "沒連上網路" 而產生的錯誤
@@ -176,5 +169,4 @@ export class AddNotificationPage implements AfterViewInit {
     // 最後的回傳值的型別應為 observable
     return throwError('Something bad happened; please try again later.');
   }
-
 }
