@@ -6,8 +6,8 @@ import {
 import { Component, OnInit } from '@angular/core';
 import { AlertController, NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
-import { throwError, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { of, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 export interface Data {
   id: number;
@@ -38,7 +38,6 @@ export class MainPage implements OnInit {
   nowUser: any;
   data$ = of(null);
 
-
   // Step 2. 在 constructor 裡面注入 HttpClient
   constructor(
     private navCtrl: NavController,
@@ -55,7 +54,7 @@ export class MainPage implements OnInit {
     this.data$ = this.getNotificationByObservable();
   }
 
-  getNotificationByObservable(){
+  getNotificationByObservable() {
     const url = 'https://api.cocoing.info/admin/notifications';
     const httpOptions = {
       headers: new HttpHeaders({
@@ -68,7 +67,6 @@ export class MainPage implements OnInit {
       catchError(this.handleError),
     );
   }
-
 
   async presentErrorAlert() {
     const alert = await this.alertController.create({
@@ -91,40 +89,39 @@ export class MainPage implements OnInit {
     }
     // 最後的回傳值的型別應為 observable
     return throwError('Something bad happened; please try again later.');
-  }
+  };
 
   reload() {
     this.data$ = this.getNotificationByObservable();
   }
 
   DeleteItem(itemID) {
-      this.DeleteNotificationsFromApi(itemID)
-      .subscribe({
-        next: () => {
-          this.presentDeleteAlert();
-          this.reload();
-        },
-        error: (error) => console.error(error),
-      });
-      const response = this.DeleteNotificationsFromApi(itemID);
-      console.log({ response });
-      this.getNotificationByObservable();
+    this.DeleteNotificationsFromApi(itemID).subscribe({
+      next: () => {
+        this.presentDeleteAlert();
+        this.reload();
+      },
+      error: (error) => console.error(error),
+    });
+    const response = this.DeleteNotificationsFromApi(itemID);
+    console.log({ response });
+    this.getNotificationByObservable();
   }
 
   DeleteNotificationsFromApi(itemID) {
-      const url = 'https://api.cocoing.info/admin/notifications';
-      const body = {
-        id: itemID,
-      };
-      const httpOptions = {
-        headers: new HttpHeaders({
-          Authorization: `Bearer ${this.accessToken}`,
-          'X-HTTP-Method-Override': 'delete',
-        }),
-      };
-      return this.http.post<Response>(url, body, httpOptions).pipe(
-        map(response => response.data),
-        catchError(this.handleError),
+    const url = 'https://api.cocoing.info/admin/notifications';
+    const body = {
+      id: itemID,
+    };
+    const httpOptions = {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${this.accessToken}`,
+        'X-HTTP-Method-Override': 'delete',
+      }),
+    };
+    return this.http.post<Response>(url, body, httpOptions).pipe(
+      map((response) => response.data),
+      catchError(this.handleError),
     );
   }
 
@@ -161,7 +158,7 @@ export class MainPage implements OnInit {
           this.presentFailSendAlert();
           reject(err);
         },
-        );
+      );
     });
   }
 

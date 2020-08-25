@@ -7,7 +7,7 @@ import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
-import { Observable, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Data } from '../main/main.page';
 declare var anime: any;
@@ -41,7 +41,7 @@ export class ItemUpdatePage implements AfterViewInit {
     private http: HttpClient,
     private alertController: AlertController,
     private storage: Storage,
-    private navCtrl: NavController
+    private navCtrl: NavController,
   ) {
     if (this.router.getCurrentNavigation().extras.state) {
       this.callback = this.router.getCurrentNavigation().extras.state;
@@ -132,34 +132,33 @@ export class ItemUpdatePage implements AfterViewInit {
   }
 
   async updateItem() {
-    this.PatchNotificationByObservable()
-      .subscribe({
-        next: () => {
-          this.callback();
-          this.presentUpdateAlert();
-          this.close();
-        },
-        error: (error) => console.error(error),
-      });
+    this.PatchNotificationByObservable().subscribe({
+      next: () => {
+        this.callback();
+        this.presentUpdateAlert();
+        this.close();
+      },
+      error: (error) => console.error(error),
+    });
   }
 
   PatchNotificationByObservable() {
-      const url = 'https://api.cocoing.info/admin/notifications';
-      const body = {
-        id: this.id,
-        title: this.title,
-        description: this.description,
-      };
-      const httpOptions = {
-        headers: new HttpHeaders({
-          Authorization: `Bearer ${this.accessToken}`,
-        }),
-      };
+    const url = 'https://api.cocoing.info/admin/notifications';
+    const body = {
+      id: this.id,
+      title: this.title,
+      description: this.description,
+    };
+    const httpOptions = {
+      headers: new HttpHeaders({
+        Authorization: `Bearer ${this.accessToken}`,
+      }),
+    };
 
-      return  this.http.patch<any>(url, body, httpOptions).pipe(
-        map(response => response.data),
-        catchError(this.handleError),
-      );
+    return this.http.patch<any>(url, body, httpOptions).pipe(
+      map((response) => response.data),
+      catchError(this.handleError),
+    );
   }
 
   async presentUpdateAlert() {
@@ -192,5 +191,5 @@ export class ItemUpdatePage implements AfterViewInit {
     }
     // 最後的回傳值的型別應為 observable
     return throwError('Something bad happened; please try again later.');
-  }
+  };
 }
