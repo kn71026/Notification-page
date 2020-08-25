@@ -18,11 +18,11 @@ declare var anime: any;
   styleUrls: ['./item-update.page.scss'],
 })
 export class ItemUpdatePage implements AfterViewInit {
-  @ViewChild('my_cool_button') my_cool_button: ElementRef;
-  @ViewChild('my_cool_text') my_cool_text: ElementRef;
-  @ViewChild('progress_bar') progress_bar: ElementRef;
-  @ViewChild('my_check') my_check: ElementRef;
-  @ViewChild('my_cool_svg') my_cool_svg: ElementRef;
+  @ViewChild('myCoolButton') myCoolButton: ElementRef;
+  @ViewChild('myText') myText: ElementRef;
+  @ViewChild('progressBar') progressBar: ElementRef;
+  @ViewChild('myCheck') myCheck: ElementRef;
+  @ViewChild('mySvg') mySvg: ElementRef;
   basicTimeline;
   id: number;
   title: any;
@@ -52,18 +52,18 @@ export class ItemUpdatePage implements AfterViewInit {
     this.basicTimeline = anime.timeline({
       autoplay: false,
     });
-    const pathEl = this.my_check.nativeElement;
+    const pathEl = this.myCheck.nativeElement;
     const offset = anime.setDashoffset(pathEl);
     pathEl.setAttribute('stroke-dashoffset', offset);
 
     this.basicTimeline
       .add({
-        targets: this.my_cool_text.nativeElement,
+        targets: this.myText.nativeElement,
         duration: 1,
         opacity: '0',
       })
       .add({
-        targets: this.my_cool_button.nativeElement,
+        targets: this.myCoolButton.nativeElement,
         duration: 1300,
         height: 10,
         width: 300,
@@ -72,18 +72,18 @@ export class ItemUpdatePage implements AfterViewInit {
         borderRadius: 100,
       })
       .add({
-        targets: this.progress_bar.nativeElement,
+        targets: this.progressBar.nativeElement,
         duration: 200,
         width: 300,
         easing: 'linear',
       })
       .add({
-        targets: this.my_cool_button.nativeElement,
+        targets: this.myCoolButton.nativeElement,
         width: 0,
         duration: 1,
       })
       .add({
-        targets: this.progress_bar.nativeElement,
+        targets: this.progressBar.nativeElement,
         width: 80,
         height: 80,
         delay: 500,
@@ -128,7 +128,7 @@ export class ItemUpdatePage implements AfterViewInit {
 
   update() {
     this.basicTimeline.play();
-    this.my_cool_svg.nativeElement.style.cursor = 'default';
+    this.mySvg.nativeElement.style.cursor = 'default';
   }
 
   async updateItem() {
@@ -192,5 +192,5 @@ export class ItemUpdatePage implements AfterViewInit {
     }
     // 最後的回傳值的型別應為 observable
     return throwError('Something bad happened; please try again later.');
-  };
+  }
 }

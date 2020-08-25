@@ -128,8 +128,6 @@ export class MainPage implements OnInit {
     );
   }
 
-
-  
   async sendItem(itemID) {
     try {
       const response = await this.sendNotificationsFromApi(itemID);

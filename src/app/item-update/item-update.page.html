@@ -20,13 +20,23 @@
     </ion-item>
   </ng-container>
     <!-- <ion-button class="submit-btn" expand="block" (click)="updateItem()" type="submit" >update</ion-button> -->
-    <div #my_cool_button class="my_cool_button" (click)="update()">
-      <div #my_cool_text class="my_cool_text" (click)="update()" >Update</div>
+    <div #myCoolButton class="myCoolButton" (click)="update()">
+      <div #myText class="myText" (click)="update()">Submit</div>
     </div>
-    <div #progress_bar class="progress_bar"></div>
-    <svg #my_cool_svg x="0px" y="0px"
-    viewBox="0 0 25 30" style="enable-background:new 0 0 25 30;cursor: pointer;" (click)="update()">
-    <path #my_check  class="st0 my_check" d="M2,19.2C5.9,23.6,9.4,28,9.4,28L23,2"/>
-  </svg>
+    <div #progressBar class="progressBar"></div>
+    <svg
+      #mySvg
+      x="0px"
+      y="0px"
+      viewBox="0 0 25 30"
+      style="enable-background: new 0 0 25 30; cursor: pointer;"
+      (click)="update()"
+    >
+      <path
+        #myCheck
+        class="st0 myCheck"
+        d="M2,19.2C5.9,23.6,9.4,28,9.4,28L23,2"
+      />
+    </svg>
 </div>
 </ion-content>
