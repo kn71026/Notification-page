@@ -1,14 +1,16 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild  } from '@angular/core';
-import { AlertController } from '@ionic/angular';
-import { Router, ActivatedRoute } from '@angular/router';
-import { MainPage, Data } from '../main/main.page';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import {  throwError, of, Observable } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AlertController, NavController } from '@ionic/angular';
 import { Storage } from '@ionic/storage';
-import { title } from 'process';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { Data } from '../main/main.page';
 declare var anime: any;
-
 
 @Component({
   selector: 'app-item-update',
@@ -24,7 +26,7 @@ export class ItemUpdatePage implements AfterViewInit {
   basicTimeline;
   id: number;
   title: any;
-  des: any;
+  description: any;
   allData: Data[];
   rawResponse = null;
   callback;
@@ -33,13 +35,13 @@ export class ItemUpdatePage implements AfterViewInit {
   response: any;
   item: Data;
 
-
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private http: HttpClient,
     private alertController: AlertController,
-    private storage: Storage
+    private storage: Storage,
+    private navCtrl: NavController
   ) {
     if (this.router.getCurrentNavigation().extras.state) {
       this.callback = this.router.getCurrentNavigation().extras.state;
@@ -48,62 +50,60 @@ export class ItemUpdatePage implements AfterViewInit {
 
   async ngAfterViewInit() {
     this.basicTimeline = anime.timeline({
-      autoplay: false
+      autoplay: false,
     });
     const pathEl = this.my_check.nativeElement;
     const offset = anime.setDashoffset(pathEl);
     pathEl.setAttribute('stroke-dashoffset', offset);
 
     this.basicTimeline
-    .add({
-      targets: this.my_cool_text.nativeElement,
-      duration: 1,
-      opacity: '0'
-    })
-    .add({
-      targets: this.my_cool_button.nativeElement,
-      duration: 1300,
-      height: 10,
-      width: 300,
-      backgroundColor: '#2B2D2F',
-      border: '0',
-      borderRadius: 100
-    })
-    .add({
-      targets: this.progress_bar.nativeElement,
-      duration: 200,
-      width: 300,
-      easing: 'linear'
-    })
-    .add({
-      targets: this.my_cool_button.nativeElement,
-      width: 0,
-      duration: 1
-    })
-    .add({
-      targets: this.progress_bar.nativeElement,
-      width: 80,
-      height: 80,
-      delay: 500,
-      duration: 750,
-      borderRadius: 80,
-      backgroundColor: '#71DFBE'
-    })
-    .add({
-      targets: pathEl,
-      strokeDashoffset: [offset, 0],
-      duration: 100,
-      easing: 'easeInOutSine',
-      complete : () => this.updateItem()
-    });
+      .add({
+        targets: this.my_cool_text.nativeElement,
+        duration: 1,
+        opacity: '0',
+      })
+      .add({
+        targets: this.my_cool_button.nativeElement,
+        duration: 1300,
+        height: 10,
+        width: 300,
+        backgroundColor: '#2B2D2F',
+        border: '0',
+        borderRadius: 100,
+      })
+      .add({
+        targets: this.progress_bar.nativeElement,
+        duration: 200,
+        width: 300,
+        easing: 'linear',
+      })
+      .add({
+        targets: this.my_cool_button.nativeElement,
+        width: 0,
+        duration: 1,
+      })
+      .add({
+        targets: this.progress_bar.nativeElement,
+        width: 80,
+        height: 80,
+        delay: 500,
+        duration: 750,
+        borderRadius: 80,
+        backgroundColor: '#71DFBE',
+      })
+      .add({
+        targets: pathEl,
+        strokeDashoffset: [offset, 0],
+        duration: 100,
+        easing: 'easeInOutSine',
+        complete: () => this.updateItem(),
+      });
     this.accessToken = String(await this.storage.get('Token'));
     this.id = Number(this.route.snapshot.paramMap.get('id'));
-    console.log(this.id);
     this.data$ = this.getNotificationByObservable();
-    // this.initialize();
   }
 
-  getNotificationByObservable(){
+  getNotificationByObservable() {
     const url = 'https://api.cocoing.info/admin/notifications';
     const httpOptions = {
       headers: new HttpHeaders({
@@ -112,69 +112,55 @@ export class ItemUpdatePage implements AfterViewInit {
     };
 
     return this.http.get<any>(url, httpOptions).pipe(
-      // 透過 tap 來查看，轉換前的樣子
-      tap((response) => console.log('before map():', response)),
+      map((response) => response.data.find((item) => item.id === this.id)),
 
-      // 透過 map 運算，把 response 都轉換成 response.data
-      // (換句話說就是只保留 response 中的 data)
-      map((response) => response.data.find( (item) => item.id === this.id)),
-      // map( this.title => response.title),
-      // 透過 tap 來查看，轉換後的結果
-      tap((response) => console.log('after map():', response)),
+      tap((response) => {
+        this.title = response.title;
+        this.description = response.description;
+        // console.log('after map():', response);
+      }),
     );
   }
 
-  async initialize() {
-    try {
-      // 在元件初始化的時候，透過後端 api 取得資料
-      const response  = this.getNotificationByObservable();
-
-      // console.log(response.data);
-      // this.item = response.find(item => item.id === this.id);
-      this.rawResponse = response;
-    } catch (error) {
-
-      console.error(error);
-      this.presentErrorAlert();
-    }
+  close() {
+    this.navCtrl.navigateBack('/main');
   }
 
-
-  getItem(id: number): Observable<Data> {
-    const url = 'https://api.cocoing.info/admin/notifications';
-    const httpOptions = {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${this.accessToken}`,
-      }),
-    };
-    return this.http.get<any>(url, httpOptions).pipe(
-      tap(_ => console.log(`fetched item id=${id}`)),
-      catchError(this.handleError),
-    );
+  update() {
+    this.basicTimeline.play();
+    this.my_cool_svg.nativeElement.style.cursor = 'default';
   }
 
-  async getAllNotificationsFromApi() {
-    const url = 'https://api.cocoing.info/admin/notifications';
-    const httpOptions = {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${this.accessToken}`,
-      }),
-    };
-
-    const response = await this.http.get<any>(url, httpOptions).toPromise();
-    return response;
+  async updateItem() {
+    this.PatchNotificationByObservable()
+      .subscribe({
+        next: () => {
+          this.callback();
+          this.presentUpdateAlert();
+          this.close();
+        },
+        error: (error) => console.error(error),
+      });
   }
 
-  async presentErrorAlert() {
-    const alert = await this.alertController.create({
-      header: 'Error',
-      message: 'Sorry, please try again later.',
-      buttons: ['OK'],
-    });
+  PatchNotificationByObservable() {
+      const url = 'https://api.cocoing.info/admin/notifications';
+      const body = {
+        id: this.id,
+        title: this.title,
+        description: this.description,
+      };
+      const httpOptions = {
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${this.accessToken}`,
+        }),
+      };
 
-    alert.present();
+      return  this.http.patch<any>(url, body, httpOptions).pipe(
+        map(response => response.data),
+        catchError(this.handleError),
+      );
   }
-
 
   async presentUpdateAlert() {
     const alert = await this.alertController.create({
@@ -196,58 +182,6 @@ export class ItemUpdatePage implements AfterViewInit {
     alert.present();
   }
 
-  goBack(){
-    this.router.navigate(['/main']);
-  }
-
-  update(){
-    this.basicTimeline.play();
-    this.my_cool_svg.nativeElement.style.cursor = 'default';
-  }
-
-  async updateItem(){
-    try {
-      const response = await this.PatchNotificationsToApi();
-      console.log({ response });
-
-    } catch (error) {
-      console.error('catch error!');
-      catchError(this.handleError);
-    }
-  }
-
-
-  async PatchNotificationsToApi() {
-
-    return new Promise((resolve, reject) => {
-    const url = 'https://api.cocoing.info/admin/notifications';
-    const body = {
-      id: this.id,
-      title: this.title,
-      description: this.des,
-    };
-    const httpOptions = {
-      headers: new HttpHeaders({
-        Authorization: `Bearer ${this.accessToken}`,
-      }),
-    };
-    this.http.patch<Response>(url, body, httpOptions).subscribe(
-      (res) => {
-        console.log(res);
-        this.callback();
-        this.presentUpdateAlert();
-        this.goBack();
-        resolve(res);
-      },
-      (err) => {
-        console.error(err);
-        this.presentFailUpdateAlert();
-        reject(err);
-      },
-    );
-    });
-  }
-
   private handleError = (error: HttpErrorResponse) => {
     if (error.error instanceof ErrorEvent) {
       // "前端本身" or "沒連上網路" 而產生的錯誤
@@ -258,7 +192,5 @@ export class ItemUpdatePage implements AfterViewInit {
     }
     // 最後的回傳值的型別應為 observable
     return throwError('Something bad happened; please try again later.');
-  }
-
-
+  };
 }

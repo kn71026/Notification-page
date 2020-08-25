@@ -218,7 +218,7 @@ export class MainPage implements OnInit {
   nav2update(itemId) {
     this.navCtrl.navigateForward('/item-update/' + itemId, {
       state: () => {
-        this.getNotificationByObservable();
+        this.reload();
       },
     });
   }
